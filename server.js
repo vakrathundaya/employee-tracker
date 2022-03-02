@@ -107,7 +107,7 @@ const promptUser = () => {
 //show all Dept
 showDepartments = () => {
     const sql = `SELECT department.id As id,department.name AS department FROM department`;
-    connection.Promise().query(sql,(err,rows) =>{
+    connection.promise().query(sql,(err,rows) =>{
         if(err) throw err;
         console.table(rows);
         promptUser();
@@ -119,7 +119,7 @@ showRoles = () => {
     const sql = `SELECET role.id,role.title,department.name AS department FROM role
     INNER JOIN department ON role.department_id = department.id`;
 
-    connection.Promise().query(sql,(err,rows) =>{
+    connection.promise().query(sql,(err,rows) =>{
         if(err) throw err;
         console.table(rows);
         promptUser();
@@ -135,7 +135,7 @@ showEmployees = () =>{
     LEFT JOIN department ON role.department_id = department.id
     LEFT JOIN employee manager ON employee.manager_id = manager.id`;
 
-    connection.Promise.query(sql, (err, rows) => {
+    connection.promise.query(sql, (err, rows) => {
         if (err) throw err; 
         console.table(rows);
         promptUser();
@@ -207,7 +207,7 @@ addARole = () => {
         // gets department from department table
         const Sql = `SELECT name, id FROM department`; 
   
-        connection.Promise().query(roleSql, (err, data) => {
+        connection.promise().query(roleSql, (err, data) => {
           if (err) throw err; 
       
           const dept = data.map(({ name, id }) => ({ name: name, value: id }));
@@ -272,7 +272,7 @@ addARole = () => {
       // gets roles from role table
       const Sql = `SELECT role.id, role.title FROM role`;
     
-      connection.Promise().query(Sql, (err, data) => {
+      connection.promise().query(Sql, (err, data) => {
         if (err) throw err; 
         
         const role = data.map(({ id, title }) => ({ name: title, value: id }));
@@ -291,7 +291,7 @@ addARole = () => {
   
                 const Sql = `SELECT * FROM employee`;
   
-                connection.Promise().query(Sql, (err, data) => {
+                connection.promise().query(Sql, (err, data) => {
                   if (err) throw err;
   
                   const managers = data.map(({ id, first_name, last_name }) => ({ name: first_name + " "+ last_name, value: id }));
@@ -320,5 +320,66 @@ addARole = () => {
             });
           });
        });
+    });
+  };
+  
+  // update an employee Role
+
+  updateEmployeeRole = () => {
+
+    // get employees from employee table 
+    const employeeSql = `SELECT * FROM employee`;
+  
+    connection.promise().query(employeeSql, (err, data) => {
+      if (err) throw err; 
+  
+    const employees = data.map(({ id, first_name, last_name }) => ({ name: first_name + " "+ last_name, value: id }));
+  
+      inquirer.prompt([
+        {
+          type: 'list',
+          name: 'name',
+          message: "Which employee would you like to update?",
+          choices: employees
+        }
+      ])
+        .then(empChoice => {
+          const employee = empChoice.name;
+          const params = []; 
+          params.push(employee);
+  
+          const Sql = `SELECT * FROM role`;
+  
+          connection.promise().query(Sql, (err, data) => {
+            if (err) throw err; 
+  
+            const roles = data.map(({ id, title }) => ({ name: title, value: id }));
+            
+              inquirer.prompt([
+                {
+                  type: 'list',
+                  name: 'role',
+                  message: "What is the employee's new role?",
+                  choices: roles
+                }
+              ])
+                  .then(roleChoice => {
+                  const role = roleChoice.role;
+                  params.push(role); 
+                  
+                  let employee = params[0]
+                  params[0] = role
+                  params[1] = employee 
+                  const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
+  
+                  connection.query(sql, params, (err, result) => {
+                    if (err) throw err;
+                  console.log("Employee has been updated!");
+                
+                  showEmployees();
+            });
+          });
+        });
+      });
     });
   };
