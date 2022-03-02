@@ -487,3 +487,34 @@ deleteDept = () => {
     });
   });
 };
+
+//delete role
+deleteRole = () => {
+  const Sql = `SELECT * FROM role`; 
+
+  connection.promise().query(Sql, (err, data) => {
+    if (err) throw err; 
+
+    const role = data.map(({ title, id }) => ({ name: title, value: id }));
+
+    inquirer.prompt([
+      {
+        type: 'list', 
+        name: 'role',
+        message: "What role do you want to delete?",
+        choices: role
+      }
+    ])
+      .then(Choice => {
+        const role = Choice.role;
+        const sql = `DELETE FROM role WHERE id = ?`;
+
+        connection.query(sql, role, (err, result) => {
+          if (err) throw err;
+          console.log("Successfully deleted!"); 
+
+          showRoles();
+      });
+    });
+  });
+};
