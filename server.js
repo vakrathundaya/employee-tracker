@@ -16,7 +16,7 @@ connection.connect(function (err) {
     init();
 });
 
-const promtUser = () => {
+const promptUser = () => {
 
     inquirer.prompt([
         {
@@ -99,5 +99,27 @@ const promtUser = () => {
         if(choice === "Exit"){
             connection.end()
         };
+    });
+};
+
+//show all Dept
+showDepartments = () => {
+    const sql = `SELECT department.id As id,department.name AS department FROM department`;
+    connection.Promise().query(sql,(err,rows) =>{
+        if(err) throw err;
+        console.table(rows);
+        promptUser();
+    });
+};
+
+//show all roles
+showRoles = () => {
+    const sql = `SELECET role.id,role.title,department.name AS department FROM role
+    INNER JOIN department ON role.department_id = department.id`;
+
+    connection.Promise().query(sql,(err,rows) =>{
+        if(err) throw err;
+        console.table(rows);
+        promptUser();
     });
 };
