@@ -16,6 +16,8 @@ connection.connect(function (err) {
     init();
 });
 
+promptUser();
+
 const promptUser = () => {
 
     inquirer.prompt([
@@ -122,4 +124,49 @@ showRoles = () => {
         console.table(rows);
         promptUser();
     });
+};
+//show all employees
+
+showEmployees = () =>{
+
+    const sql = `SELECT employee.id, employee.first_name,employee.last_name,role.title,department.name AS department,role.salary, 
+    CONCAT (manager.first_name, " ", manager.last_name) AS manager FROM employee
+    LEFT JOIN role ON employee.role_id = role.id
+    LEFT JOIN department ON role.department_id = department.id
+    LEFT JOIN employee manager ON employee.manager_id = manager.id`;
+
+    connection.Promise.query(sql, (err, rows) => {
+        if (err) throw err; 
+        console.table(rows);
+        promptUser();
+        });
+        };
+
+// function to add a department 
+addDepartment = () => {
+  inquirer.prompt([
+    {
+      type: 'input', 
+      name: 'addDept',
+      message: "What department do you want to add?",
+      validate: addDept => {
+        if (addDept) {
+            return true;
+        } else {
+            console.log('Please enter a department');
+            return false;
+        }
+      }
+    }
+  ])
+    .then(answer => {
+      const sql = `INSERT INTO department (name) VALUES (?)`;
+      
+      connection.query(sql, answer.addDept, (err, result) => {
+        if (err) throw err;
+        console.log('Added ' + answer.addDept + " to departments!"); 
+
+        showDepartments();
+    });
+  });
 };
