@@ -7,6 +7,8 @@ require("dotenv").config();
 
 // Import connection.js module for SQL server connection
 const connection = require("./config/connection");
+const { allowedNodeEnvironmentFlags } = require("process");
+const { addAbortSignal } = require("stream");
 
 // Connect to database
 connection.connect(function (err) {
@@ -19,9 +21,9 @@ const promtUser = () => {
     inquirer.prompt([
         {
             type: 'list',
-            name: 'choices',
+            name: 'choice',
             message: 'What would you like to do?',
-            choices:
+            choice:
                 ['View All Departments',
                     'View All Roles',
                     'View All Employees',
@@ -40,6 +42,62 @@ const promtUser = () => {
         }
 
     ]).then((answers) => {
-        const{choices} = answers;
-    })
-}
+        const{choice} = answers;
+
+        if(choice === "View All epartments"){
+            showDepartments();
+        
+
+        }
+        if(choice === "View All Roles")
+        {
+            showRoles();
+        }
+        if(choice === "View All Employees")
+        {
+            showEmployees();
+        }
+        if(choice === "Add a Department")
+        {
+            addDepartment();
+        }
+        if(choice === "Add a Role")
+        {
+            addARole();
+        }
+        if(choice === "Add an employee")
+        {
+            addEmployee();
+        }
+        if(choice === "Update an Employee Role")
+        {
+            updateEmployeeRole();
+        }
+        if(choice === "Update an Employee Manager")
+        {
+            updateManager();
+        }
+        if(choice === "View Employee By Department")
+        {
+            viewEmpByDept();
+        }
+        if(choice === "Delete a Department")
+        {
+            deleteDept();
+        }
+        if(choice === "Delete a Role"){
+            deleteRole();
+        }
+        if(choice === "elete an Employee")
+        {
+            deleteEmployee();
+        }
+        if(choice === "View department Budgets")
+        {
+            viewBudget();
+        }
+        if(choice === "Exit"){
+            connection.end()
+        };
+    });
+};
